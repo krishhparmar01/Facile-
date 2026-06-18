@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITR - Student Login</title>
+    <!-- Tailwind CSS for matching premium UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+        
+        <!-- Logo / Header -->
+        <div class="text-5xl mb-4">🎓</div>
+        <h1 class="text-2xl font-bold text-emerald-400 tracking-wide mb-1">AITR Portal</h1>
+        <p class="text-sm text-gray-400 mb-8">B.Tech First Year (CSE) Access</p>
+
+        <!-- Login Form -->
+        <div class="space-y-4">
+            <div class="text-left">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Enrollment Number</label>
+                <input type="text" id="enrollment-input" placeholder="e.g. 0827CS251001" 
+                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 uppercase transition-colors">
+            </div>
+
+            <!-- Error Message Box (Hidden by default) -->
+            <p id="error-msg" class="text-red-400 text-sm hidden">Invalid Acropolis CSE Enrollment Number.</p>
+
+            <button onclick="verifyLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg mt-4">
+                Access Live Tracker
+            </button>
+        </div>
+        
+        <div class="mt-6 border-t border-gray-700 pt-4">
+            <p class="text-xs text-gray-500">Format strictly accepted: 0827CS251XXX</p>
+        </div>
+    </div>
+
+    <script>
+        function verifyLogin() {
+            // Get the value typed by the user and convert to uppercase
+            const input = document.getElementById('enrollment-input').value.trim().toUpperCase();
+            const errorMsg = document.getElementById('error-msg');
+
+            // The secret hackathon logic!
+            // This regex checks if it starts with 0827CS251 and ends with exactly 3 digits
+            const acropolisPattern = /^0827CS251\d{3}$/;
+
+            if (acropolisPattern.test(input)) {
+                // Success! Hide error and redirect to the tracker page
+                errorMsg.classList.add('hidden');
+                
+                // Show a quick loading state on the button
+                event.target.innerText = "Verifying...";
+                event.target.classList.replace("bg-emerald-600", "bg-emerald-800");
+
+                // Redirect to the dashboard after a short 1-second delay (feels more realistic to judges)
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 800);
+            } else {
+                // Failed! Show the error message
+                errorMsg.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
