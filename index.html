@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AITR - Live Teacher Tracker</title>
+    <!-- Tailwind CSS for an instant premium UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="bg-gray-800 border-b border-gray-700 p-5 text-center shadow-md">
+        <h1 class="text-2xl font-bold text-emerald-400 tracking-wide">Acropolis Institute of Technology & Research</h1>
+        <p class="text-sm text-gray-400 mt-1">B.Tech I Year | Branch: CSE (CS-2) | Base Room: 305</p>
+    </header>
+
+    <!-- Main Live Tracker Display -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transition-all">
+            
+            <div class="mb-4">
+                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-wider">
+                    Live Status
+                </span>
+            </div>
+
+            <!-- Current Time & Day Display -->
+            <div id="live-time" class="text-gray-400 text-sm font-mono mb-6"></div>
+
+            <!-- Dynamic Information Box -->
+            <div id="tracker-card" class="space-y-4">
+                <div class="text-gray-500 animate-pulse text-lg">Analyzing schedule...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hackathon Presentation Demo Controller -->
+    <footer class="bg-gray-800 border-t border-gray-700 p-6">
+        <div class="max-w-md mx-auto text-center">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">💡 Hackathon Demo Mode</h3>
+            <p class="text-xs text-gray-500 mb-4">Use this to change time during your presentation pitch!</p>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <select id="demo-day" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="current">Use System Day</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+                <input type="time" id="demo-time" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <button onclick="runTracker()" class="mt-3 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 rounded text-sm transition-colors shadow-md">
+                Update Live Simulation
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // Your real parsed AITR schedule dataset
+        const scheduleData = {
+            "Monday": [
+                { start: "10:30", end: "11:20", subject: "Basic Computer Engg (L)", teacher: "Dr. Pratik Shah (PS)", room: "Room 305" },
+                { start: "11:20", end: "12:10", subject: "Basic Mechanical Engg (L)", teacher: "Dr. Chandrashekhar Koria (CSK)", room: "Room 305" },
+                { start: "12:10", end: "13:00", subject: "Engineering Physics (L)", teacher: "Ms. Akanksha Patel (AP)", room: "Room 305" },
+                { start: "13:00", end: "13:50", subject: "Lunch Break", teacher: "None", room: "Cafeteria" },
+                { start: "13:50", end: "15:30", subject: "Physics Lab (B1) / BME Lab (B2)", teacher: "AP / CSK", room: "B1: Rm 247 | B2: Rm 303" },
+                { start: "15:30", end: "17:00", subject: "Maths-II / Self Study / Special Event", teacher: "Ms. Raheshvari Dhote (RSD)", room: "Room 305" }
+            ],
+            "Tuesday": [
+                { start: "10:30", end: "12:10", subject: "Mathematics-II (L)", teacher: "Ms. Raheshvari Dhote (RSD)", room: "Room 305" },
+                { start: "12:10", end: "13:00", subject: "Basic Civil Engg & Mech (L)", teacher: "Mr. Puneet Garg (PUG)", room: "Room 305" },
+                { start: "13:00", end: "13:50", subject: "Lunch Break", teacher: "None", room: "Cafeteria" },
+                { start: "13:50", end: "15:30", subject: "BCE Lab (B1) / Language Lab (B2)", teacher: "PUG / SKU", room: "B1: Rm 07 | B2: Rm 302" },
+                { start: "15:30", end: "16:15", subject: "Basic Mechanical Engg (L)", teacher: "Dr. Chandrashekhar Koria (CSK)", room: "Room 305" },
+                { start: "16:15", end: "17:00", subject: "Basic Computer Engg (L)", teacher: "Dr. Pratik Shah (PS)", room: "Room 305" }
+            ],
+            "Wednesday": [
+                { start: "10:30", end: "11:20", subject: "Basic Computer Engg (L)", teacher: "Dr. Pratik Shah (PS)", room: "Room 305" },
+                { start: "11:20", end: "12:10", subject: "Engineering Physics (L)", teacher: "Ms. Akanksha Patel (AP)", room: "Room 305" },
+                { start: "12:10", end: "13:00", subject: "Communication Skills Devp", teacher: "Ms. Shalu Kushwaha (SKU)", room: "Room 305" },
+                { start: "13:00", end: "13:50", subject: "Lunch Break", teacher: "None", room: "Cafeteria" },
+                { start: "13:50", end: "15:30", subject: "BCE Lab (B1 & B2)", teacher: "Dr. Pratik Shah (PS)", room: "Room 307" },
+                { start: "15:30", end: "17:00", subject: "BCE & EM / Sports Activity / Library", teacher: "Mr. Puneet Garg (PUG)", room: "Room 305 / Grounds" }
+            ],
+            "Thursday": [
+                { start: "10:30", end: "11:20", subject: "Basic Civil Engg & Mech (L)", teacher: "Mr. Puneet Garg (PUG)", room: "Room 305" },
+                { start: "11:20", end: "12:10", subject: "Mathematics-II (L)", teacher: "Ms. Raheshvari Dhote (RSD)", room: "Room 305" },
+                { start: "12:10", end: "13:00", subject: "Engineering Physics (L)", teacher: "Ms. Akanksha Patel (AP)", room: "Room 305" },
+                { start: "13:00", end: "13:50", subject: "Lunch Break", teacher: "None", room: "Cafeteria" },
+                { start: "13:50", end: "15:30", subject: "Language Lab (B1) / BCE Lab (B2)", teacher: "SKU / PUG", room: "B1: Rm 302 | B2: Rm 07" },
+                { start: "15:30", end: "17:00", subject: "Maths-II / BME / Library", teacher: "RSD / CSK", room: "Room 305" }
+            ],
+            "Friday": [
+                { start: "10:30", end: "11:20", subject: "Basic Mechanical Engg (L)", teacher: "Dr. Chandrashekhar Koria (CSK)", room: "Room 305" },
+                { start: "11:20", end: "12:10", subject: "Basic Civil Engg & Mech (L)", teacher: "Mr. Puneet Garg (PUG)", room: "Room 305" },
+                { start: "12:10", end: "13:00", subject: "Basic Computer Engg (L)", teacher: "Dr. Pratik Shah (PS)", room: "Room 305" },
+                { start: "13:00", end: "13:50", subject: "Lunch Break", teacher: "None", room: "Cafeteria" },
+                { start: "13:50", end: "15:30", subject: "BME Lab (B1) / Physics Lab (B2)", teacher: "CSK / AP", room: "B1: Rm 303 | B2: Rm 247" },
+                { start: "15:30", end: "17:00", subject: "Maths-II / Engg. Physics", teacher: "RSD / NU / AP", room: "Room 305" }
+            ],
+            "Saturday": [
+                { start: "10:30", end: "14:40", subject: "Internship-1", teacher: "CSE Department Faculty", room: "CS Department Labs" }
+            ]
+        };
+
+        function runTracker() {
+            const now = new Date();
+            
+            // Handle day selection (System time vs Demo controller override)
+            const chosenDay = document.getElementById('demo-day').value;
+            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const currentDay = chosenDay === "current" ? daysOfWeek[now.getDay()] : chosenDay;
+
+            // Handle time selection (System time vs Demo controller override)
+            const chosenTime = document.getElementById('demo-time').value;
+            let currentHourMin = chosenTime;
+            if (!chosenTime || chosenDay === "current") {
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                currentHourMin = `${hours}:${minutes}`;
+            }
+
+            // Display active testing parameters
+            document.getElementById('live-time').innerText = `Simulated: ${currentDay}, ${currentHourMin}`;
+
+            const todaysSchedule = scheduleData[currentDay] || [];
+            
+            // Search for current period based on time thresholds
+            const activePeriod = todaysSchedule.find(period => 
+                currentHourMin >= period.start && currentHourMin < period.end
+            );
+
+            const displayCard = document.getElementById('tracker-card');
+
+            if (activePeriod) {
+                displayCard.innerHTML = `
+                    <div class="text-xs text-gray-400 uppercase tracking-widest font-semibold font-mono">Current Lecture</div>
+                    <h2 class="text-2xl font-bold text-white mt-1">${activePeriod.subject}</h2>
+                    
+                    <div class="my-4 border-t border-gray-700/50"></div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-left pt-2">
+                        <div>
+                            <span class="text-xs text-gray-500 uppercase block">Faculty</span>
+                            <span class="text-sm font-medium text-gray-200">${activePeriod.teacher}</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500 uppercase block">Location</span>
+                            <span class="text-sm font-bold text-emerald-400">${activePeriod.room}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-gray-500 font-mono bg-gray-900/40 py-2 rounded">
+                        Timing: ${activePeriod.start} - ${activePeriod.end}
+                    </div>
+                `;
+            } else {
+                displayCard.innerHTML = `
+                    <div class="text-5xl mb-3">🏫</div>
+                    <h2 class="text-xl font-semibold text-gray-300">No Scheduled Class Right Now</h2>
+                    <p class="text-sm text-gray-500 mt-2">The department is empty or college hours haven't started/have finished.</p>
+                `;
+            }
+        }
+
+        // Run checking calculation immediately when page launches
+        runTracker();
+    </script>
+</body>
+</html>
